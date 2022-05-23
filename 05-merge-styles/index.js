@@ -8,15 +8,15 @@ async function readDirFun() {
 
     if (data.indexOf('bundle.css') < 0) {
         fs.open(path.join(__dirname, 'project-dist', 'bundle.css'), 'w', (err) => {
-            if (err) throw err; // не удалось создать файл
+            if (err) throw err;
             writeFileCss();
         });
     } else {
         fs.unlink(path.join(__dirname, 'project-dist', 'bundle.css'), err => {
-            if (err) throw err; // не удалось удалить файл
+            if (err) throw err;
         });
         fs.open(path.join(__dirname, 'project-dist', 'bundle.css'), 'w', (err) => {
-            if (err) throw err; // не удалось создать файл
+            if (err) throw err;
             writeFileCss();
         });
     }
