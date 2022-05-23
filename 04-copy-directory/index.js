@@ -9,7 +9,6 @@ async function readDirFun() {
     if (data.indexOf('files-copy') < 0) {
         fs.mkdir(path.join(__dirname, 'files-copy'), (err) => {
             if (err) { return console.error(err) }
-            // console.log('ok')
         })
     }
 
