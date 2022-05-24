@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require('path');
-console.log('run')
+const { pipeline } = require("stream");
 
 async function readDirFun() {
 
@@ -64,38 +64,11 @@ async function readDirFun() {
         if (err) throw err;
         const readStr = fs.createReadStream(path.join(__dirname, 'template.html'), "utf8");
         readStr.on("data", function (chunk) {
-            if (chunk.indexOf('{{header}}')) {
-                // console.log(chunk)
-                chunk.replace(/{{header}}/i, '')
-                console.log(chunk)
-                const readStr1 = fs.createReadStream(path.join(__dirname, 'components', 'header.html'));
-                readStr1.on("data", function (chunk) {
-                    // writeStr.write(input + '\n');
-                    fs.appendFile(path.join(__dirname, 'project-dist', 'index.html'), chunk, (err) => {
-                        if (err) throw err;
-                    });
-                });
-            }
-            // if (chunk.indexOf('{{articles}}')) {
-            //     // console.log(chunk)
-            //     chunk.replace(/{{articles}}/i, '')
-            //     const readStr2 = fs.createReadStream(path.join(__dirname, 'components', 'articles.html'));
-            //     fs.appendFile(path.join(__dirname, 'project-dist', 'index.html'), chunk, (err) => {
-            //         if (err) throw err;
-            //     });
-            // }
-            // if (chunk.indexOf('{{footer}}')) {
-            //     // console.log(chunk)
-            //     chunk.replace(/{{footer}}/i, '')
-            //     const readSt3 = fs.createReadStream(path.join(__dirname, 'components', 'footer.html'));
-            //     fs.appendFile(path.join(__dirname, 'project-dist', 'index.html'), chunk, (err) => {
-            //         if (err) throw err;
-            //     });
-            // }
             fs.appendFile(path.join(__dirname, 'project-dist', 'index.html'), chunk, (err) => {
                 if (err) throw err;
             });
         });
+
     });
 
     fs.open(path.join(__dirname, 'project-dist', 'style.css'), 'w', (err) => {
@@ -103,6 +76,26 @@ async function readDirFun() {
         writeFileCss();
     });
 
+    await htmlBuild();
+
+    async function htmlBuild() {
+        try {
+            let str = await fs.promises.readFile(path.join(__dirname, 'template.html'), 'utf-8');
+            const component1 = await fs.promises.readFile(path.join(__dirname, 'components', 'header.html'), 'utf-8');
+            str = str.replace(`{{header}}`, component1);
+            const component2 = await fs.promises.readFile(path.join(__dirname, 'components', 'articles.html'), 'utf-8');
+            str = str.replace(`{{articles}}`, component2);
+            const component3 = await fs.promises.readFile(path.join(__dirname, 'components', 'footer.html'), 'utf-8');
+            str = str.replace(`{{footer}}`, component3);
+
+            const writeStr = fs.createWriteStream(path.join(__dirname, 'project-dist', 'index.html'));
+            writeStr.write(str);
+
+        } catch (error) {
+            console.log(error.message)
+        }
+
+    }
 
     function writeFileCss() {
         styleFolder.forEach(file => {
@@ -118,152 +111,7 @@ async function readDirFun() {
             }
         });
     }
-
-    function writeFileHtml() {
-        componentFolder.forEach(file => {
-            if (file.isFile()) {
-                if (file.name.length >= 6 && file.name.substring(file.name.length - 5, file.name.length) == '.html') {
-                    const readStr = fs.createReadStream(path.join(__dirname, 'styles', file.name));
-                    readStr.on("data", function (chunk) {
-                        fs.appendFile(path.join(__dirname, 'project-dist', 'bundle.css'), chunk, (err) => {
-                            if (err) throw err;
-                        });
-                    });
-                }
-            }
-        });
-    }
-
-
-
-    // listObjects(path.join(__dirname, 'assets', 'fonts'));
-    // listObjects(path.join(__dirname, 'assets', 'img'));
-    // listObjects(path.join(__dirname, 'assets', 'svg'));
-
-    // async function listObjects(pathFolder) {
-    //     const dataFile = await fs.promises.readdir(pathFolder, { withFileTypes: true })
-    //     if (dataFile.length) {
-    //         dataFile.forEach(file => {
-    //             if (file.isFile()) {
-    //                 fs.unlink(path.join(pathFolder, file.name), err => {
-    //                     if (err) throw err; // не удалось удалить файл
-    //                 });
-    //             } else {
-    //                 fs.rmdir(pathFolder, err => {
-    //                     if (err) throw err; // не удалось удалить папку
-    //                     console.log('Папка успешно удалена');
-    //                 });
-    //             }
-    //         });
-    //     }
-    // }
-
-    // data.forEach(file => {
-    //     if (file.isFile()) {
-    //         const stats = fs.stat(path.join(__dirname, 'secret-folder', file.name), (error, stats) => {
-    //             console.log(file.name, stats);
-    //         });
-    //     }
-    // });
-
-
-    // listObjects(path.join(__dirname, 'project-dist'));
-
-    // if (data.indexOf('bundle.css') < 0) {
-    //     fs.open(path.join(__dirname, 'project-dist', 'bundle.css'), 'w', (err) => {
-    //         if (err) throw err;
-    //         writeFileCss();
-    //     });
-    // } else {
-    //     fs.unlink(path.join(__dirname, 'project-dist', 'bundle.css'), err => {
-    //         if (err) throw err;
-    //     });
-    //     fs.open(path.join(__dirname, 'project-dist', 'bundle.css'), 'w', (err) => {
-    //         if (err) throw err;
-    //         writeFileCss();
-    //     });
-    // }
-
-    // function writeFileCss() {
-    //     dataFiles.forEach(file => {
-    //         if (file.isFile()) {
-    //             if (file.name.length >= 5 && file.name.substring(file.name.length - 4, file.name.length) == '.css') {
-    //                 const readStr = fs.createReadStream(path.join(__dirname, 'styles', file.name));
-    //                 readStr.on("data", function (chunk) {
-    //                     fs.appendFile(path.join(__dirname, 'project-dist', 'bundle.css'), chunk, (err) => {
-    //                         if (err) throw err;
-    //                     });
-    //                 });
-    //             }
-    //         }
-    //     });
-    // }
 }
-
-// async function readDirFun1() {
-
-//     const data = await fs.promises.readdir(path.join(__dirname))
-//     const dataFiles = await fs.promises.readdir(path.join(__dirname, 'files'))
-
-//     if (data.indexOf('files-copy') < 0) {
-//         fs.mkdir(path.join(__dirname, 'files-copy'), (err) => {
-//             if (err) { return console.error(err) }
-//         })
-//     }
-
-//     const dataCopyFolder = await fs.promises.readdir(path.join(__dirname, 'files-copy'))
-
-//     if (dataCopyFolder.length) {
-//         dataCopyFolder.forEach(file => {
-//             fs.unlink(path.join(__dirname, 'files-copy', file), err => {
-//                 if (err) throw err; // не удалось удалить файл
-//             });
-//         });
-//     }
-
-//     dataFiles.forEach(file => {
-//         fs.copyFile(path.join(__dirname, 'files', file), path.join(__dirname, 'files-copy', file), err => {
-//             if (err) throw err; // не удалось скопировать файл
-//         });
-//     });
-
-// }
-
-
-// async function delObjects(pathFolder) {
-//     const dataFile = await fs.promises.readdir(pathFolder, { withFileTypes: true })
-//     dataFile.forEach(file => {
-//         if (file.isFile()) {
-//             console.log(file)
-//             fs.unlink(path.join(pathFolder, file.name), err => {
-//                 if (err) throw err; // не удалось удалить файл
-//             });
-//         } else {
-//             delObjects(path.join(pathFolder, file.name));
-//         }
-//     });
-// }
-
-
-// async function delObjects(pathFolder) {
-//     const dataFile = await fs.promises.readdir(pathFolder, { withFileTypes: true })
-//     if (dataFile.length) {
-//         dataFile.forEach(file => {
-//             if (file.isFile()) {
-//                 fs.unlink(path.join(pathFolder, file.name), err => {
-//                     if (err) throw err; // не удалось удалить файл
-//                 });
-//             } else {
-//                 delObjects(path.join(pathFolder, file.name));
-//             }
-//         });
-//     } else {
-//         fs.rmdir(pathFolder, err => {
-//             if (err) throw err; // не удалось удалить папку
-//             console.log('Папка успешно удалена');
-//         });
-//     }
-// }
 
 try {
     readDirFun();
