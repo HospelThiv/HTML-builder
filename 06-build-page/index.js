@@ -9,7 +9,6 @@ async function readDirFun() {
     const assetsFolderF = await fs.promises.readdir(path.join(__dirname, 'assets', 'fonts'), { withFileTypes: true })
     const assetsFolderI = await fs.promises.readdir(path.join(__dirname, 'assets', 'img'), { withFileTypes: true })
     const assetsFolderS = await fs.promises.readdir(path.join(__dirname, 'assets', 'svg'), { withFileTypes: true })
-    const componentFolder = await fs.promises.readdir(path.join(__dirname, 'components'), { withFileTypes: true })
     const styleFolder = await fs.promises.readdir(path.join(__dirname, 'styles'), { withFileTypes: true })
 
     if (data.indexOf('project-dist') < 0) {
@@ -28,25 +27,27 @@ async function readDirFun() {
         });
     }
 
-    // await delObjects(path.join(__dirname, 'project-dist'));
-
     const assetsDistF = await fs.promises.readdir(path.join(__dirname, 'project-dist', 'assets', 'fonts'), { withFileTypes: true })
     const assetsDistI = await fs.promises.readdir(path.join(__dirname, 'project-dist', 'assets', 'img'), { withFileTypes: true })
     const assetsDistS = await fs.promises.readdir(path.join(__dirname, 'project-dist', 'assets', 'svg'), { withFileTypes: true })
 
-    function delFiles(clearFolder, folder) {
-        clearFolder.forEach(file => {
-            if (file.isFile()) {
-                fs.unlink(path.join(__dirname, 'project-dist', 'assets', folder, file.name), err => {
-                    if (err) throw err; // не удалось удалить файл
-                });
-            }
-        });
+    await delFiles(assetsDistF, 'fonts')
+    await delFiles(assetsDistI, 'img')
+    await delFiles(assetsDistS, 'svg')
+
+    async function delFiles(clearFolder, folder) {
+        if (clearFolder.length) {
+            clearFolder.forEach(file => {
+                if (file.isFile()) {
+                    fs.unlink(path.join(__dirname, 'project-dist', 'assets', folder, file.name), err => {
+                        if (err) throw err; // не удалось удалить файл
+                    });
+                }
+            });
+        }
     }
 
-    delFiles(assetsDistF, 'fonts')
-    delFiles(assetsDistI, 'img')
-    delFiles(assetsDistS, 'svg')
+
 
     function newFiles(dataFolder, folder) {
         dataFolder.forEach(file => {
