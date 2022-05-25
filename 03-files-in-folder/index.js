@@ -6,7 +6,7 @@ async function readDirFun() {
     data.forEach(file => {
         if (file.isFile()) {
             const stats = fs.stat(path.join(__dirname, 'secret-folder', file.name), (error, stats) => {
-                console.log(file.name, `- ${(stats.size / 1024).toFixed(3)} Kb`);
+                console.log(file.name.replace('.', ' - '), `- ${(stats.size / 1024).toFixed(3)} Kb`);
             });
         }
     });
