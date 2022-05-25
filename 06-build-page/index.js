@@ -1,30 +1,39 @@
 const fs = require("fs");
 const path = require('path');
-const { pipeline } = require("stream");
+// const { pipeline } = require("stream");
 
 async function readDirFun() {
 
     const data = await fs.promises.readdir(path.join(__dirname))
-    const assetsFolder = await fs.promises.readdir(path.join(__dirname, 'assets'), { withFileTypes: true })
+    // const assetsFolder = await fs.promises.readdir(path.join(__dirname, 'assets'), { withFileTypes: true })
     const assetsFolderF = await fs.promises.readdir(path.join(__dirname, 'assets', 'fonts'), { withFileTypes: true })
     const assetsFolderI = await fs.promises.readdir(path.join(__dirname, 'assets', 'img'), { withFileTypes: true })
     const assetsFolderS = await fs.promises.readdir(path.join(__dirname, 'assets', 'svg'), { withFileTypes: true })
     const styleFolder = await fs.promises.readdir(path.join(__dirname, 'styles'), { withFileTypes: true })
 
     if (data.indexOf('project-dist') < 0) {
-        fs.mkdir(path.join(__dirname, 'project-dist'), (err) => {
+        await fs.promises.mkdir(path.join(__dirname, 'project-dist'), (err) => {
             if (err) { return console.error(err) }
         })
-        fs.mkdir(path.join(__dirname, 'project-dist', 'assets'), (err) => {
+        await fs.promises.mkdir(path.join(__dirname, 'project-dist', 'assets'), (err) => {
             if (err) { return console.error(err) }
         })
-        assetsFolder.forEach(file => {
-            if (file.isFile() == false) {
-                fs.mkdir(path.join(__dirname, 'project-dist', 'assets', file.name), (err) => {
-                    if (err) { return console.error(err) }
-                })
-            }
-        });
+        await fs.promises.mkdir(path.join(__dirname, 'project-dist', 'assets', 'fonts'), (err) => {
+            if (err) { return console.error(err) }
+        })
+        await fs.promises.mkdir(path.join(__dirname, 'project-dist', 'assets', 'img'), (err) => {
+            if (err) { return console.error(err) }
+        })
+        await fs.promises.mkdir(path.join(__dirname, 'project-dist', 'assets', 'svg'), (err) => {
+            if (err) { return console.error(err) }
+        })
+        // assetsFolder.forEach(file => {
+        //     if (file.isFile() == false) {
+        //         fs.mkdir(path.join(__dirname, 'project-dist', 'assets', file.name), (err) => {
+        //             if (err) { return console.error(err) }
+        //         })
+        //     }
+        // });
     }
 
     const assetsDistF = await fs.promises.readdir(path.join(__dirname, 'project-dist', 'assets', 'fonts'), { withFileTypes: true })
